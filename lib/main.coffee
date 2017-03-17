@@ -2,6 +2,16 @@
 helpers = require 'atom-linter'
 path = require 'path'
 
+cmpVersions = (v1, v2) ->
+  v1Parts = v1.split('.')
+  v2Parts = v2.split('.')
+  minLength = Math.min(v1Parts.length, v2Parts.length)
+  if minLength > 0
+    for idx in [0..minLength - 1]
+      diff = Number(v1Parts[idx]) - Number(v2Parts[idx])
+      return diff unless diff is 0
+  return v1Parts.length - v2Parts.length
+
 COALA_MIN_VERSION = '0.9.1'
 module.exports =
   config:
@@ -29,7 +39,7 @@ module.exports =
 
     # Check version of coala
     version = helpers.exec(@executable, ['--version']).then (result) ->
-      if result <= COALA_MIN_VERSION
+      if cmpVersions(result, COALA_MIN_VERSION) < 0
         atom.notifications.addError \
           'You are using an old version of coala !',
           'detail': 'Please upgrade your version of coala.\n
